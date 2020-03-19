@@ -8,9 +8,16 @@
 </head>
 
 <body>
-    <label for="upload-input">Choose file or make a picture</label>
-    <input type="file" id="upload-input">
+    <div>
+        <label for="upload-input">File or camera</label>
+        <input type="file" id="upload-input">
+    </div>
+    <div>
+        <label for="upload-input">CameraOnly</label>
+        <input type="file" id="upload-input-camera" accept="image/*" capture="camera">
+    </div>
     <img id="preview-img" style="max-width:100%;">
+
     <script src="./main.js"> </script>
 </body>
 
