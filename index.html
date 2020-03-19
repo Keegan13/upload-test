@@ -4,19 +4,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <title>Camera open test</title>
+    <style>
+        .btn-camera {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            background-color: #ffffff66;
+            border-radius: 20px;
+            padding: 29px;
+        }
+
+        .btn-camera i {
+            font-size: 14em;
+        }
+    </style>
 </head>
 
 <body>
+    <button type="button" class="btn btn-default btn-camera" id="upload-button-camera">
+        <div>
+            <i class="fa fa-camera fa-6" aria-hidden="true"></i>
+            <h4>Tap to open camera</h4>
+        </div>
+
+    </button>
+    <input type="file" hidden id="upload-input-camera" accept="image/*" capture="camera">
     <div>
-        <label for="upload-input">File or camera</label>
-        <input type="file" id="upload-input">
+        <img id="preview-img" style="max-width:100%;">
     </div>
-    <div>
-        <label for="upload-input">CameraOnly</label>
-        <input type="file" id="upload-input-camera" accept="image/*" capture="camera">
-    </div>
-    <img id="preview-img" style="max-width:100%;">
 
     <script src="./main.js"> </script>
 </body>
