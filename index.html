@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,7 +18,15 @@
             border-radius: 20px;
             padding: 29px;
         }
-
+        #image-preview-container {
+            background-repeat: no-repeat;
+            background-size: contain;
+            position: absolute;
+            background-position: center;
+            z-index: -1;
+            height: 100%;
+            width: 100%;
+        }
         .btn-camera i {
             font-size: 14em;
         }
@@ -28,18 +35,17 @@
 
 <body>
     <button type="button" class="btn btn-default btn-camera" id="upload-button-camera">
-        <div>
-            <i class="fa fa-camera fa-6" aria-hidden="true"></i>
-            <h4>Tap to open camera</h4>
-        </div>
-
+        <i class="fa fa-camera fa-6" aria-hidden="true"></i>
+        <h4>Tap to open camera</h4>
     </button>
     <input type="file" hidden id="upload-input-camera" accept="image/*" capture="camera">
-    <div>
-        <img id="preview-img" style="max-width:100%;">
-    </div>
-
-    <script src="./main.js"> </script>
+    <div id="image-preview-container"></div>
+    <script>
+        (function () {
+            document.getElementById("upload-input-camera").addEventListener("change", (e) => { const file = e.target.files[0]; if (file) { const objUrl = URL.createObjectURL(file); document.getElementById("image-preview-container").style.backgroundImage = `url(${objUrl})`; } });
+            document.getElementById("upload-button-camera").addEventListener("click", () => { document.getElementById("upload-input-camera").click() });
+        })();
+    </script>
 </body>
 
 </html>
