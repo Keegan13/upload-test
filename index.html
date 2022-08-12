@@ -1,51 +1,102 @@
 <!DOCTYPE html>
-<html lang="en">
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
-        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <title>Camera open test</title>
-    <style>
-        .btn-camera {
-            position: absolute;
-            transform: translate(-50%, -50%);
-            top: 50%;
-            left: 50%;
-            background-color: #ffffff66;
-            border-radius: 20px;
-            padding: 29px;
-        }
-        #image-preview-container {
-            background-repeat: no-repeat;
-            background-size: contain;
-            position: absolute;
-            background-position: center;
-            z-index: -1;
-            height: 100%;
-            width: 100%;
-        }
-        .btn-camera i {
-            font-size: 14em;
-        }
-    </style>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://js.stripe.com/v3/"></script>
+	<link rel="stylesheet" href="stripe-payments.css" />
 </head>
-
 <body>
-    <button type="button" class="btn btn-default btn-camera" id="upload-button-camera">
-        <i class="fa fa-camera fa-6" aria-hidden="true"></i>
-        <h4>Tap to open camera</h4>
-    </button>
-    <input type="file" hidden id="upload-input-camera" accept="image/*">
-    <div id="image-preview-container"></div>
+    <form id="payment-method-form">
+            <label>
+                <span>Name</span>
+                <input id="account-holder-name-field"><br />
+            </label>
+            <label>
+                <span>Email</span>
+                <input id="email-field"><br />
+            </label>
+		<button id="submit">
+			<div class="spinner hidden" id="spinner"></div>
+			<span id="button-text">Add Account</span>
+		</button>
+    </form>
+	<br>
+	<form id="confirmation-form" hidden="true">
+		<button id="submit">
+			<span id="button-text">Confirm</span>
+		</button>		
+	</form>
+	
     <script>
-        (function () {
-            document.getElementById("upload-input-camera").addEventListener("change", (e) => { const file = e.target.files[0]; if (file) { const objUrl = URL.createObjectURL(file); document.getElementById("image-preview-container").style.backgroundImage = `url(${objUrl})`; } });
-            document.getElementById("upload-button-camera").addEventListener("click", () => { document.getElementById("upload-input-camera").click() });
-        })();
-    </script>
-</body>
+                
+		const stripe = Stripe('pk_test_51K4TUXLRs0RKLS4RoottiH55AFhA6uz0kP7s6rjTekyuoM9Amoy5c9EPcxjCrJn1y4kqAjNkS6OjG9rf2xAQHaXo00Smb0ixKP');
+				
+		// Use the form that already exists on the web page.
+		const paymentMethodForm = document.getElementById('payment-method-form');
+		const confirmationForm = document.getElementById('confirmation-form');
 
+		paymentMethodForm.addEventListener('submit', (ev) => {
+		  ev.preventDefault();
+		  const accountHolderNameField = document.getElementById('account-holder-name-field');
+		  const emailField = document.getElementById('email-field');
+		  
+
+
+		  // Calling this method will open the instant verification dialog.
+		  stripe.collectBankAccountForSetup({
+			clientSecret: 'seti_1LVdIJLRs0RKLS4ROF3Q8qav_secret_ME5TBFfSYYpFGQroZZbKesPwwaXY6DF',
+			params: {
+			  payment_method_type: 'us_bank_account',
+			  payment_method_data: {
+				billing_details: {
+				  name: accountHolderNameField.value,
+				  email: emailField.value,
+				},
+			  },
+			},
+			expand: ['payment_method'],
+		  })
+		  .then(({setupIntent, error}) => {
+			if (error) {
+			  console.error(error.message);
+			  // PaymentMethod collection failed for some reason.
+			} else if (setupIntent.status === 'requires_payment_method') {
+			  // Customer canceled the hosted verification modal. Present them with other
+			  // payment method type options.
+			} else if (setupIntent.status === 'requires_confirmation') {
+			  // We collected an account - possibly instantly verified, but possibly
+			  // manually-entered. Display payment method details and mandate text
+			  // to the customer and confirm the intent once they accept
+			  // the mandate.
+			  paymentMethodForm.hidden = true;
+			  confirmationForm.hidden = false;
+			}
+		  });
+		});
+		
+		confirmationForm.addEventListener('submit', (ev) => {
+		  ev.preventDefault();
+		  stripe.confirmUsBankAccountSetup('seti_1LVdIJLRs0RKLS4ROF3Q8qav_secret_ME5TBFfSYYpFGQroZZbKesPwwaXY6DF')
+		  .then(({setupIntent, error}) => {
+			if (error) {
+			  console.error(error.message);
+			  // The payment failed for some reason.
+			} else if (setupIntent.status === "requires_payment_method") {
+			  // Confirmation failed. Attempt again with a different payment method.
+			} else if (setupIntent.status === "succeeded") {
+			  // Confirmation succeeded! The account is now saved.
+			  // Display a message to customer.
+			} else if (setupIntent.next_action?.type === "verify_with_microdeposits") {
+			  // The account needs to be verified via microdeposits.
+			  // Display a message to consumer with next steps (consumer waits for
+			  // microdeposits, then enters a statement descriptor code on a page sent to them via email).
+			}
+		  });
+		});		
+
+    </script>
+
+</body>
 </html>
